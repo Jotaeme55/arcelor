@@ -1,0 +1,194 @@
+<html lang="es">
+	<head>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+		<script src="https://d3js.org/d3.v4.min.js"></script>
+		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+	</head>		
+	<style>
+		 body {
+			background-image: url("background.jpg");
+			background-size: cover;
+		} 	
+		img {
+			width: 100%;
+  			height: 100%;
+		}
+		arcelor {
+			object-fit: none;
+		}
+	</style>
+	<body class="bg-success p-2 text-dark bg-opacity-25">
+		<div class="mt-5" align="center">
+			<button class="active"type="button" onclick='window.location.href = "/" '><h1>Creador de ofertas</h1></button>
+		</div>
+		<div class="container mt-5">
+			<div class="row">
+				<div id="divOfertafinal" class="col-3 col-mt-60">
+					<table id="ofertaFinal" class="table table-hover">
+						<tr>
+							<th><h4>Material</h4></th>
+							<th><h4>Cantidad</h4></th>
+							<th><h4>Unidad</h4></th>
+						</tr>
+
+					</table>
+				</div>
+				<div  class="col-6" align="center">
+					<h2>Escribe el material</h2>
+					<input id="buscador"type="text" placeholder="inserte el material">
+					<div id="resultado"></div>
+				</div>
+				<div class="col-3 col-mt-60" id="material">
+					<div class="arcelor"><img src="Arcelor_Mittal.svg.png"></div>
+				</div>
+				
+			</div>
+			
+		</div>	
+		
+	</body>
+</html>
+<script>
+	d3.csv("/data.csv", function(data) {
+		const buscador= document.querySelector('#buscador');
+		const resultado=document.querySelector('#resultado');
+		const filtrar = ()=>{
+			const texto=buscador.value.toLowerCase();
+			resultado.innerHTML = "";
+			let i=0;
+			for(let material of data){
+				if(i===15){
+					break;
+				}
+				let nombre=material.nombre.toLowerCase();
+				if(texto!==""&&nombre.startsWith(texto)){
+					
+					i++;
+					resultado.innerHTML += 
+					`<input value="${material.nombre}" class="btn-check" type="radio" name="radio" id="${material.materialid}" >
+					<label class="btn btn-outline-primary" for="${material.materialid}"> ${material.nombre}</label>
+					<br>`;
+				}
+			}
+			if(texto==""){
+				resultado.innerHTML = "";
+			}
+			else if(resultado.innerHTML=== ''){
+
+				resultado.innerHTML = `
+					<h3>${buscador.value}</h3>
+					<h2>no hay ningun resultado</h2>
+				`
+			}
+		}
+		var cont = 0
+		resultado.addEventListener('click',()=>{
+			var checkedValue =  $('input:radio[name=radio]:checked')[0];
+			let material=document.querySelector("#material")
+			material.innerHTML=
+			`<h2>El material es ${checkedValue.value}</h2>
+			
+			<br><br><input type="text" id="material" name="material" value="${checkedValue.id}" readonly>
+			<label for="material"> material </label>
+
+			<br><br><input type="number" id="cantidad" name="cantidad" >
+			<label for="cantidad"> cantidad </label>
+
+			<br><br><input type="text" id="unidades" name="unidades" >
+			<label for="unidades"> unidades </label>
+			<div id="validaciones">
+			<br>
+			</div>
+			<br>
+			<br>
+			<table id="tablaIndividual" class="table table-bordered">
+				<tr>
+   					<th>Material</th>
+   					<th>Cantidad</th>
+    				<th>Unidad</th>
+  				</tr>
+				<tr>
+   					<th>${checkedValue.id}</th>
+   					<th id=cantidadth></th>
+    				<th id=unidadth></th>
+  				</tr>
+			</table>
+			<br>
+			<br>
+			<button type="button" class="btn btn-info" id="anadirMaterial">Añadir Material</button>
+			`;
+
+			const cantidad= document.querySelector('#cantidad');
+			const unidades=document.querySelector('#unidades');
+
+			cantidad.addEventListener("keyup",()=>{
+				document.querySelector("#cantidadth").innerHTML=`${cantidad.value}`
+			})
+			
+			
+			unidades.addEventListener("keyup",()=>{
+				var unidadMayus=unidades.value.toUpperCase();
+				var arrayUnidades=["UN","T","M2","M","KG"]		
+				var valida = false;
+				if(unidadMayus==="K") unidadMayus="KG"
+				if(unidadMayus==="U") unidadMayus="UN"
+				if(!arrayUnidades.includes(unidadMayus)) valida=true
+				if(unidadMayus!=""&&valida){
+					document.querySelector("#validaciones").innerHTML=`<p class="text-danger">Cuidado!No estas poniendo bien las unidades</p>`
+				}else{
+					document.querySelector("#validaciones").innerHTML=`<br>`;
+					document.querySelector("#unidadth").innerHTML=`${unidadMayus}`;
+				}				
+			})
+			
+			
+			//aqui para añadir el ultimo boton
+			const anadirMaterial= document.querySelector('#anadirMaterial');
+			anadirMaterial.addEventListener("click",()=>{
+				const ofertaFinal= document.querySelector('#ofertaFinal');
+				const tablaIndividual=document.querySelector('#tablaIndividual');
+				var mat=tablaIndividual.rows[1].cells[0].innerHTML
+				var un=tablaIndividual.rows[1].cells[2].innerHTML
+				ofertaFinal.insertRow(-1).innerHTML =`<td>${mat}</td><td>${cantidad.value}</td><td>${un}</td>`
+				
+				cont++
+				if(cont<=1){
+					const divOfertafinal= document.querySelector('#divOfertafinal');
+					divOfertafinal.innerHTML+=`<button type="button" class="btn btn-info" id="copiarOferta">Copiar Oferta</button>`
+				}
+				
+				const m=document.querySelector('#material');
+				m.innerHTML=`<img class="arcelor" src="Arcelor_Mittal.svg.png">`
+
+				//copiar oferta
+				const copiarOferta= document.querySelector('#copiarOferta');
+				copiarOferta.addEventListener("click",()=>{
+					var of=document.querySelector('#ofertaFinal');
+					var text= convertTableToArray(of)
+					navigator.clipboard.writeText(text)
+				})
+			})
+			
+			
+		})
+
+		buscador.addEventListener('keyup',filtrar);
+	});
+
+	function convertTableToArray(table){
+		var res=""
+		for(var i=1;i<table.rows.length;i++){
+			var cel=table.rows[i];
+			for(var c=0; c < cel.cells.length ;c++){
+				let r=cel.cells[c].innerHTML;
+				if(c!=2){
+					res+=r+"	";
+				}else{
+					res+=r+"\n"
+				}
+
+			}
+		}
+		return res;
+	}
+</script>
