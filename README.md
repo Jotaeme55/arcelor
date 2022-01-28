@@ -10,6 +10,7 @@ Para usarla use los siguientes pasos:
 ![image](https://user-images.githubusercontent.com/60939740/151597395-a20f1a7a-10b6-480a-971f-19937d15abe0.png)
 
 3º Repita los pasos 1º y 2º hasta obtener una lista completa de los materiales que desee y opcionalemente pulse en el boton copiar para copiar la tabla a un excel
+
 ![image](https://user-images.githubusercontent.com/60939740/151597662-6eb8f1d0-ce4e-49fc-9be2-4c4357fd6091.png)
 
 ©José Tabares
